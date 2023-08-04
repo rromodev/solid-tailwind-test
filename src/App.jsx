@@ -21,7 +21,7 @@ function App() {
       </button>
 
       <div>
-        <h1 class="text-2xl text-center">Solid Todo App</h1>
+        <h1 class="text-2xl text-center">Solid Todo App:</h1>
         <input class="border dark:text-black" type="text" />
         <button class="px-2 border">Add</button>
         <ul>
