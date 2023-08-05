@@ -17,7 +17,7 @@ function App() {
         class="text-2xl fixed top-0 right-0"
         onClick={() => toggleDarkMode()}
       >
-        �
+        {darkMode() ? "🌞" : "🌙"}
       </button>
 
       <div>
