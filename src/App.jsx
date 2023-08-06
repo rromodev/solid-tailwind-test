@@ -15,8 +15,22 @@ function App() {
     { text: "Abrazar un pinguino", completed: true },
     { text: "Saludar pinguino", completed: false },
     { text: "Tomarle foto a un pinguino", completed: false },
-    { text: "Comer con un pinguino", completed: false },
   ]);
+
+  const [newItem, setNewItem] = createSignal("");
+
+  function addTodo() {
+    if (newItem()) {
+      setTodos([...todos(), { text: newItem(), completed: false }]);
+      setNewItem("");
+    }
+  }
+
+  function removeTodo(index) {
+    const newTodos = [...todos()];
+    newTodos.splice(index, 1);
+    setTodos(newTodos);
+  }
 
   return (
     <div class="w-full h-full min-h-screen flex items-center justify-center dark:bg-gray-600 dark:text-white">
@@ -29,8 +43,15 @@ function App() {
 
       <div>
         <h1 class="text-2xl text-center">Solid Todo App</h1>
-        <input class="border dark:text-black" type="text" />
-        <button class="px-2 border">Add</button>
+        <input
+          class="border dark:text-black"
+          type="text"
+          value={newItem()}
+          onInput={(e) => setNewItem(e.target.value)}
+        />
+        <button class="px-2 border" onClick={addTodo}>
+          Add
+        </button>
         <ul>
           <For each={todos()} fallback={"No hay elementos"}>
             {(todo, index) => (
@@ -48,12 +69,27 @@ function App() {
                     );
                   }}
                 />
-                <span>
+                <span
+                  onDblClick={(e) => {
+                    e.target.setAttribute("contenteditable", true);
+                    e.target.focus();
+                  }}
+                  onBlur={(e) => {
+                    e.target.setAttribute("contenteditable", false);
+                    setTodos((oldTodos) =>
+                      oldTodos.map((t, i) => {
+                        return i === index()
+                          ? { ...t, text: e.target.innerText }
+                          : t;
+                      })
+                    );
+                  }}
+                >
                   <Show when={todo.completed} fallback={todo.text}>
                     <s style="pointer-events: none">{todo.text}</s>
                   </Show>
                 </span>
-                <button>❌</button>
+                <button onClick={() => removeTodo(index())}>❌</button>
               </li>
             )}
           </For>
