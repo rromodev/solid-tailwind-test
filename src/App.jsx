@@ -1,4 +1,5 @@
-import { createEffect, createSignal, For, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
+import { createStore } from "solid-js/store";
 
 function App() {
   const [darkMode, setDarkMode] = createSignal(false);
@@ -11,7 +12,7 @@ function App() {
     setDarkMode(!darkMode());
   }
 
-  const [todos, setTodos] = createSignal([
+  const [todos, setTodos] = createStore([
     { text: "Abrazar un pinguino", completed: true },
     { text: "Saludar pinguino", completed: false },
     { text: "Tomarle foto a un pinguino", completed: false },
@@ -21,16 +22,21 @@ function App() {
 
   function addTodo() {
     if (newItem()) {
-      setTodos([...todos(), { text: newItem(), completed: false }]);
+      setTodos(todos.length, {
+        text: newItem(),
+        completed: false,
+      });
       setNewItem("");
     }
   }
 
   function removeTodo(index) {
-    const newTodos = [...todos()];
-    newTodos.splice(index, 1);
-    setTodos(newTodos);
+    setTodos((todos) => todos.filter((_, i) => i !== index));
   }
+
+  const completedCount = createMemo(
+    () => todos.filter((todo) => todo.completed).length
+  );
 
   return (
     <div class="w-full h-full min-h-screen flex items-center justify-center dark:bg-gray-600 dark:text-white">
@@ -53,20 +59,14 @@ function App() {
           Add
         </button>
         <ul>
-          <For each={todos()} fallback={"No hay elementos"}>
+          <For each={todos} fallback={"No hay elementos"}>
             {(todo, index) => (
               <li>
                 <input
                   type="checkbox"
                   checked={(console.log("test"), todo.completed)}
                   onChange={() => {
-                    setTodos((oldTodos) =>
-                      oldTodos.map((t, i) => {
-                        return i === index()
-                          ? { ...t, completed: !t.completed }
-                          : t;
-                      })
-                    );
+                    setTodos(index(), "completed", !todo.completed);
                   }}
                 />
                 <span
@@ -76,13 +76,7 @@ function App() {
                   }}
                   onBlur={(e) => {
                     e.target.setAttribute("contenteditable", false);
-                    setTodos((oldTodos) =>
-                      oldTodos.map((t, i) => {
-                        return i === index()
-                          ? { ...t, text: e.target.innerText }
-                          : t;
-                      })
-                    );
+                    setTodos(index(), "text", e.target.textContent);
                   }}
                 >
                   <Show when={todo.completed} fallback={todo.text}>
@@ -94,7 +88,9 @@ function App() {
             )}
           </For>
         </ul>
-        <p class="text-sm mt-4">Completed count: {0}</p>
+        <p class="text-sm mt-4">
+          Completed count: {(console.log("completed"), completedCount())}
+        </p>
       </div>
     </div>
   );
