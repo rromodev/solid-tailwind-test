@@ -1,17 +1,9 @@
-import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
+import { createMemo, createSignal, For, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
+import { ButtonDarkMode } from "./components/ButtonDarkMode";
+import { Todo } from "./components/Todo";
 
 function App() {
-  const [darkMode, setDarkMode] = createSignal(false);
-
-  createEffect(() => {
-    document.body.classList.toggle("dark", darkMode());
-  });
-
-  function toggleDarkMode() {
-    setDarkMode(!darkMode());
-  }
-
   const [todos, setTodos] = createStore([
     { text: "Abrazar un pinguino", completed: true },
     { text: "Saludar pinguino", completed: false },
@@ -39,12 +31,7 @@ function App() {
 
   return (
     <div class="w-full h-full min-h-screen flex items-center justify-center dark:bg-gray-600 dark:text-white">
-      <button
-        class="text-2xl fixed top-0 right-0"
-        onClick={() => toggleDarkMode()}
-      >
-        {darkMode() ? "�" : "�"}
-      </button>
+      <ButtonDarkMode />
 
       <div>
         <h1 class="text-2xl text-center">Solid Todo App</h1>
@@ -61,36 +48,9 @@ function App() {
           <For each={todos} fallback={"No hay elementos"}>
             {(todo, index) => (
               <li>
-                <input
-                  type="checkbox"
-                  checked={(console.log("test"), todo.completed)}
-                  onChange={() => {
-                    setTodos(
-                      produce((todos) => {
-                        todos[index()].completed = !todos[index()].completed;
-                      })
-                    );
-                  }}
-                />
-                <span
-                  onDblClick={(e) => {
-                    e.target.setAttribute("contenteditable", true);
-                    e.target.focus();
-                  }}
-                  onBlur={(e) => {
-                    e.target.setAttribute("contenteditable", false);
-                    setTodos(
-                      produce((todos) => {
-                        todos[index()].text = e.target.innerText;
-                      })
-                    );
-                  }}
-                >
-                  <Show when={todo.completed} fallback={todo.text}>
-                    <s style="pointer-events: none">{todo.text}</s>
-                  </Show>
-                </span>
-                <button onClick={() => removeTodo(index())}>❌</button>
+                <Todo todo={todo} index={index()}>
+                  {todo.text}
+                </Todo>
               </li>
             )}
           </For>
