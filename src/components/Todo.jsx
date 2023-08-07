@@ -4,13 +4,7 @@ export function Todo(props) {
         <input
           type="checkbox"
           checked={(console.log("test"), props.todo.completed)}
-          onChange={() => {
-            setTodos(
-              produce((todos) => {
-                todos[props.index].completed = !todos[props.index].completed;
-              })
-            );
-          }}
+          onChange={props.onInputChange}
         />
         <span
           onDblClick={(e) => {
@@ -19,18 +13,14 @@ export function Todo(props) {
           }}
           onBlur={(e) => {
             e.target.setAttribute("contenteditable", false);
-            setTodos(
-              produce((todos) => {
-                todos[props.index].text = e.target.innerText;
-              })
-            );
+            props.onTextChange(e.target.textContent);
           }}
         >
           <Show when={props.todo.completed} fallback={props.children}>
             <s style="pointer-events: none">{props.children}</s>
           </Show>
         </span>
-        <button onClick={() => removeTodo(props.index)}>❌</button>
+        <button onClick={props.onRemove}>❌</button>
       </>
     );
   }

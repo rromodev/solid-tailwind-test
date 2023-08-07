@@ -48,7 +48,25 @@ function App() {
           <For each={todos} fallback={"No hay elementos"}>
             {(todo, index) => (
               <li>
-                <Todo todo={todo} index={index()}>
+                <Todo
+                  todo={todo}
+                  index={index()}
+                  onInputChange={() => {
+                    setTodos(
+                      produce((todos) => {
+                        todos[index()].completed = !todos[index()].completed;
+                      })
+                    );
+                  }}
+                  onTextChange={(text) => {
+                    setTodos(
+                      produce((todos) => {
+                        todos[index()].text = text;
+                      })
+                    );
+                  }}
+                  onRemove={() => removeTodo(index())}
+                >
                   {todo.text}
                 </Todo>
               </li>
