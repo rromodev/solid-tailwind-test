@@ -1,5 +1,5 @@
 import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, produce } from "solid-js/store";
 
 function App() {
   const [darkMode, setDarkMode] = createSignal(false);
@@ -22,16 +22,15 @@ function App() {
 
   function addTodo() {
     if (newItem()) {
-      setTodos(todos.length, {
-        text: newItem(),
-        completed: false,
-      });
+      setTodos(
+        produce((todos) => todos.push({ text: newItem(), completed: false }))
+      );
       setNewItem("");
     }
   }
 
   function removeTodo(index) {
-    setTodos((todos) => todos.filter((_, i) => i !== index));
+    setTodos(produce((todos) => todos.splice(index, 1)));
   }
 
   const completedCount = createMemo(
@@ -66,7 +65,11 @@ function App() {
                   type="checkbox"
                   checked={(console.log("test"), todo.completed)}
                   onChange={() => {
-                    setTodos(index(), "completed", !todo.completed);
+                    setTodos(
+                      produce((todos) => {
+                        todos[index()].completed = !todos[index()].completed;
+                      })
+                    );
                   }}
                 />
                 <span
@@ -76,7 +79,11 @@ function App() {
                   }}
                   onBlur={(e) => {
                     e.target.setAttribute("contenteditable", false);
-                    setTodos(index(), "text", e.target.textContent);
+                    setTodos(
+                      produce((todos) => {
+                        todos[index()].text = e.target.innerText;
+                      })
+                    );
                   }}
                 >
                   <Show when={todo.completed} fallback={todo.text}>
